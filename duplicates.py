@@ -1,43 +1,31 @@
 import os
 import sys
-import hashlib
 
-def get_all_files_in_dir(file_path):
-    all_files = []
-    for (root, dirs, files) in os.walk(file_path):
-        for file_in_dir in files:            
-            file_name_in_dir = os.path.join(root, file_in_dir)
-            all_files.append(file_name_in_dir)
-    return all_files
 
-def hash_of_file(file_path):
-    BLOCKSIZE = 65536
-    hasher = hashlib.md5()
-    with open(file_path, 'rb') as afile:
-        buf = afile.read(BLOCKSIZE)
-        while len(buf) > 0:
-            hasher.update(buf)
-            buf = afile.read(BLOCKSIZE)
-    return hasher.hexdigest()
+def get_duplicates(dir_path):
+    files_in_dir = {}
+    duplicates_files = []
+    for (file_root, dirs, all_files) in os.walk(dir_path):
+        for searching_file in all_files:
+            file_name = file_root + "/" + searching_file
+            file_key = searching_file + str(os.path.getsize(file_name))
+            path_of_file_in_dict = files_in_dir.get(file_key, False)
+            if path_of_file_in_dict :
+                duplicates_files.append([path_of_file_in_dict, file_name])
+            else:
+                files_in_dir[file_key] = file_name
+    return duplicates_files
 
-def is_contains_duplicates(files):
-    if files is None:
-        return
-    list_files = {}
-    dubl_files = []
-    for filename in files:
-        file_info = hash_of_file(filename)
-        if not file_info in list_files.keys():
-            list_files[file_info] = os.path.dirname(filename)
-        else:
-            dubl_files.append(filename)
-    return dubl_files
+
+def print_duplicates(duplicates):
+    print("Those files are the same")
+    for duplicate in duplicates:
+        print("{0} {1}".format(duplicate[0], duplicate[1]))
 
 
 if __name__ == '__main__':
     dir_name = sys.argv[1]
     if not os.path.isdir(dir_name):
         exit(1)
-    files = get_all_files_in_dir(dir_name)
-    duplicates = is_contains_duplicates(files)
-    print("These files should be delete to save the space\n {0}".format(duplicates))
+    duplicates = get_duplicates(dir_name)
+    print_duplicates(duplicates)
