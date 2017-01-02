@@ -8,7 +8,7 @@ def get_duplicates(dir_path):
     for (file_root, dirs, all_files) in os.walk(dir_path):
         for searching_file in all_files:
             file_name = os.path.join(file_root,searching_file)
-            file_key = searching_file +  str(os.path.getsize(file_name))
+            file_key = "".join((searching_file ,str(os.path.getsize(file_name))))
             path_of_file_in_dict = files_in_dir.get(file_key, False)
             if path_of_file_in_dict :
                 duplicates_files.setdefault(path_of_file_in_dict,[]).append(file_name)
